@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- Inherit from Spring Boot parent so modules get dependency & plugin management -->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.6</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<groupId>com.homesync.backup</groupId>
+	<artifactId>homesync-parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>homesync-parent</name>
+	<description>Parent POM for Homesync multi-module project</description>
+
+	<modules>
+		<module>photo-sorter</module>
+	</modules>
+
+	<properties>
+		<!-- Java version managed from parent -->
+		<java.version>21</java.version>
+		<!-- Centralize lombok version here (other Spring Boot managed deps come from parent) -->
+		<lombok.version>1.18.26</lombok.version>
+		<!-- springdoc version managed here for OpenAPI/Swagger UI -->
+		<springdoc.version>2.2.0</springdoc.version>
+		<!-- MySQL connector version managed here -->
+		<mysql.connector.version>9.4.0</mysql.connector.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Manage lombok version centrally (starters are managed by spring-boot parent) -->
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+			</dependency>
+			<!-- Manage springdoc OpenAPI starter version centrally -->
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+				<version>${springdoc.version}</version>
+			</dependency>
+			<!-- Manage MySQL JDBC driver centrally -->
+			<dependency>
+				<groupId>com.mysql</groupId>
+				<artifactId>mysql-connector-j</artifactId>
+				<version>${mysql.connector.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- Configure compiler plugin to use parent's java.version -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<release>${java.version}</release>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+							</path>
+						</annotationProcessorPaths>
+					</configuration>
+				</plugin>
+
+				<!-- Expose spring-boot plugin here so modules can use it without version -->
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>

@@ -1,0 +1,7 @@
+com/homesync/backup/homesync/service/SamplePhotoService.class
+com/homesync/backup/homesync/config/OpenApiConfig.class
+com/homesync/backup/homesync/controller/SamplePhotoController.class
+com/homesync/backup/homesync/config/DataSourceConfig.class
+com/homesync/backup/homesync/repository/SamplePhotoRepository.class
+com/homesync/backup/homesync/HomesyncApplication.class
+com/homesync/backup/homesync/model/SamplePhoto.class

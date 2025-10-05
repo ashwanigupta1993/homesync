@@ -1,0 +1,15 @@
+-- Initialize database and create sample table for photo-sorter
+-- This file will be executed by the MySQL Docker image when the database is first created.
+
+CREATE DATABASE IF NOT EXISTS photo_sorter_db;
+USE photo_sorter_db;
+
+-- Create sample table
+CREATE TABLE IF NOT EXISTS sample_photos (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  filename VARCHAR(512) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert a sample row
+INSERT INTO sample_photos (filename) VALUES ('example.jpg');
