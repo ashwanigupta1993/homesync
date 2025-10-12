@@ -72,6 +72,7 @@ Desktop.ini
 docker-compose.override.yml
 .env.local
 **/volume-mounts/
+**/volume-mounts/*
 
 # --- Misc ---
 *.orig
