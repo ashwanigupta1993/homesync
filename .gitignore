@@ -1,0 +1,81 @@
+# ==========================================
+# Java Project .gitignore
+# ==========================================
+
+# --- Build & Output ---
+target/
+bin/
+out/
+build/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.log
+
+# --- Maven ---
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+dependency-reduced-pom.xml
+
+# --- Gradle ---
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- IntelliJ IDEA ---
+.idea/
+*.iml
+*.ipr
+*.iws
+# IntelliJ out directory (can exist outside project root)
+out/
+
+# --- VS Code ---
+.vscode/
+.history/
+.project/
+.settings/
+
+# --- Eclipse (just in case) ---
+.classpath
+.project
+.settings/
+
+# --- OS-specific junk ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# --- Logs & temporary files ---
+*.log
+*.tmp
+*.bak
+*.swp
+
+# --- JetBrains Fleet ---
+.fleet/
+
+# --- Docker ---
+*.pid
+docker-compose.override.yml
+.env.local
+
+# --- Misc ---
+*.orig
+*.rej
+
+# ==========================================
+# End of file
+# ==========================================
