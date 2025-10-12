@@ -14,7 +14,7 @@ build/
 *.zip
 *.tar.gz
 *.log
-
+/volume-mounts
 # --- Maven ---
 .mvn/
 !/.mvn/wrapper/maven-wrapper.jar
