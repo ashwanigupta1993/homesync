@@ -6,13 +6,18 @@ services:
     container_name: mysql
     restart: unless-stopped
     ports:
-      - "330:3306" # Host -> Container port mapping for MySQL
+      - "3307:3306"  # Host -> Container port mapping for MySQL
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: photo_sorter_db
       MYSQL_USER: photo_user
       MYSQL_PASSWORD: photo_pass
     volumes:
-      - ./volume-mounts:/var/lib/mysql # Persist database files using a host path
-      - ./init.mysql:/docker-entrypoint-initdb.d/init.mysql:ro # Initialization script
+      - ./volume-mounts/mysql-data:/var/lib/mysql  # Persist database files (dedicated folder)
+      - ./init.mysql:/docker-entrypoint-initdb.d/init.mysql:ro  # Initialization script
+    networks:
+      - homesync-net
 
+networks:
+  homesync-net:
+    driver: bridge

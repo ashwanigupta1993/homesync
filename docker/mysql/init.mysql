@@ -1,15 +1,96 @@
--- Initialize database and create sample table for photo-sorter
+-- Initialize database and create tables for photo-sorter
 -- This file will be executed by the MySQL Docker image when the database is first created.
 
 CREATE DATABASE IF NOT EXISTS photo_sorter_db;
 USE photo_sorter_db;
 
--- Create sample table
-CREATE TABLE IF NOT EXISTS sample_photos (
+-- photos table
+CREATE TABLE IF NOT EXISTS photos (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  path VARCHAR(1024) NOT NULL UNIQUE,
   filename VARCHAR(512) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  filesize BIGINT DEFAULT NULL,
+  width INT DEFAULT NULL,
+  height INT DEFAULT NULL,
+  inserted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  modified_at DATETIME DEFAULT NULL,
+  status ENUM('READY','PROCESSING','PROCESSED','FAILED') DEFAULT 'READY',
+  person_ids JSON DEFAULT NULL
 );
 
--- Insert a sample row
-INSERT INTO sample_photos (filename) VALUES ('example.jpg');
+-- persons table
+CREATE TABLE IF NOT EXISTS persons (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  display_name VARCHAR(255) DEFAULT NULL,
+  primary_embedding_id BIGINT DEFAULT NULL
+);
+
+-- embeddings table
+CREATE TABLE IF NOT EXISTS embeddings (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  person_id BIGINT DEFAULT NULL,
+  source_photo_id BIGINT DEFAULT NULL,
+  embedding LONGBLOB,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (person_id) REFERENCES persons(id) ON DELETE SET NULL,
+  FOREIGN KEY (source_photo_id) REFERENCES photos(id) ON DELETE SET NULL
+);
+
+-- join table photo_persons
+CREATE TABLE IF NOT EXISTS photo_persons (
+  photo_id BIGINT NOT NULL,
+  person_id BIGINT NOT NULL,
+  PRIMARY KEY (photo_id, person_id),
+  FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+  FOREIGN KEY (person_id) REFERENCES persons(id) ON DELETE CASCADE
+);
+
+-- ingest jobs and batches
+CREATE TABLE IF NOT EXISTS ingest_jobs (
+  job_id CHAR(36) PRIMARY KEY,
+  job_name VARCHAR(255) DEFAULT NULL,
+  path VARCHAR(1024) NOT NULL,
+  recursive BOOLEAN DEFAULT TRUE,
+  requested_by VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  status ENUM('SCANNED','PUBLISHED','COMPLETED','FAILED') DEFAULT 'SCANNED',
+  scanned_count INT DEFAULT 0,
+  inserted_count INT DEFAULT 0,
+  published_count INT DEFAULT 0,
+  finished_at DATETIME DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ingest_batches (
+  batch_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  job_id CHAR(36) NOT NULL,
+  batch_index INT NOT NULL,
+  photo_count INT DEFAULT 0,
+  status ENUM('READY','PUBLISHED','FAILED') DEFAULT 'READY',
+  inserted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  published_at DATETIME DEFAULT NULL,
+  FOREIGN KEY (job_id) REFERENCES ingest_jobs(job_id) ON DELETE CASCADE
+);
+
+-- mapping table for photos to ingest batches/jobs
+CREATE TABLE IF NOT EXISTS photo_ingest_map (
+  map_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  photo_id BIGINT NOT NULL,
+  batch_id BIGINT NOT NULL,
+  job_id CHAR(36) NOT NULL,
+  inserted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  publish_attempts INT DEFAULT 0,
+  last_publish_error TEXT DEFAULT NULL,
+  status ENUM('PENDING','PUBLISHED','FAILED') DEFAULT 'PENDING',
+  FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+  FOREIGN KEY (batch_id) REFERENCES ingest_batches(batch_id) ON DELETE CASCADE,
+  FOREIGN KEY (job_id) REFERENCES ingest_jobs(job_id) ON DELETE CASCADE
+);
+
+-- Example: create a few topics using a metadata table (optional for simple usage)
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+

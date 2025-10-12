@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+  KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+  KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+  KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: photo_sorter_db
+      MYSQL_USER: photo_user
+      MYSQL_PASSWORD: photo_pass
+    volumes:
+      - ./docker/mysql/volume-mounts:/var/lib/mysql
+      - ./docker/mysql/init.mysql:/docker-entrypoint-initdb.d/init.mysql:ro
+    ports:
+      - "3306:3306"
+
+  photo-sorter:
+    image: homesync/photo-sorter:latest
+    build:
+      context: ../photo-sorter
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/photo_sorter_db?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: photo_user
+      SPRING_DATASOURCE_PASSWORD: photo_pass
+      KAFKA_BOOTSTRAP: kafka:9092
+    ports:
+      - "8080:8080"
+
+networks:
+  default:
+    name: homesync-net
+    driver: bridge

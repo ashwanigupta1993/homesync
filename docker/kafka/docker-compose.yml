@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - ./volume-mounts/zookeeper/data:/var/lib/zookeeper/data
+      - ./volume-mounts/zookeeper/log:/var/lib/zookeeper/log
+    networks:
+      - homesync-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"     # for host
+      - "29092:29092"   # for internal docker network
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+
+      # Broker will bind to both addresses
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+
+      # Advertise different listener names for inside vs outside
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      # Optional, helps with topic creation and testing
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+    volumes:
+      - ./volume-mounts/kafka/data:/var/lib/kafka/data
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - homesync-net
+
+networks:
+  homesync-net:
+    driver: bridge

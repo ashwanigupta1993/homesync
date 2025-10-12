@@ -24,9 +24,9 @@
 
 	<properties>
 		<!-- Java version managed from parent -->
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 		<!-- Centralize lombok version here (other Spring Boot managed deps come from parent) -->
-		<lombok.version>1.18.26</lombok.version>
+		<lombok.version>1.18.28</lombok.version>
 		<!-- springdoc version managed here for OpenAPI/Swagger UI -->
 		<springdoc.version>2.2.0</springdoc.version>
 		<!-- MySQL connector version managed here -->
